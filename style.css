@@ -1,0 +1,11 @@
+.resultValue {
+    font-family: monospace;
+}
+
+.buttonCalc {
+    min-width: 75px;
+}
+
+.bigButtonCalc {
+    min-width: 155px;
+}
