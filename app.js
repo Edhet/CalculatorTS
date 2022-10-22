@@ -45,6 +45,8 @@ function calculateResult() {
 }
 function clearDisplayButton() {
     displayValue = "0";
+    firstValue = 0;
+    secondValue = 0;
     tempValue = "";
     operation = "";
     updateResult();
