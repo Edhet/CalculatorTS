@@ -25,10 +25,10 @@ function readOperationButton(operationInput) {
     updateHtml();
 }
 function calculateResult() {
-    console.log("Input: " + fullExpression);
     removeUselessOperations();
     while (howManyParenthesisOpen() > 0)
         fullExpression += ')';
+    console.log("Input: " + fullExpression);
     fullExpression = evaluateExpression(fullExpression);
     console.log("Result: " + fullExpression);
     updateHtml();
