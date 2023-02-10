@@ -2,10 +2,29 @@
     font-family: monospace;
 }
 
+.my-content-fit {
+    width: fit-content !important;
+}
+
+.margin-y-axis {
+    margin: auto 0;
+}
+
 .buttonCalc {
-    min-width: 75px;
+    min-width: 4rem;
 }
 
 .bigButtonCalc {
-    min-width: 155px;
+    min-width: 8.2rem;
+}
+
+@media screen and (max-width:400px){
+
+    .buttonCalc {
+        min-width: 3.2rem;
+    }
+
+    .bigButtonCalc {
+        min-width: 6.6rem;
+    }
 }
