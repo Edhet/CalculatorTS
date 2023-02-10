@@ -5,10 +5,10 @@ function clearDisplayButton() {
     updateHtml();
 }
 function readInputButton(valueInput) {
-    console.log("pressed: " + valueInput);
+    console.log("Pressed: " + valueInput);
     if (valueInput == ')' && !fullExpression.includes('('))
         return;
-    if (valueInput == '(' && isNumeric(fullExpression[fullExpression.length - 1]))
+    if (valueInput == '(' && isNumeric(fullExpression[fullExpression.length - 1]) && fullExpression[fullExpression.length - 1] != '0')
         fullExpression += '*';
     if (fullExpression == "0" || fullExpression == "Error")
         fullExpression = valueInput;
@@ -16,31 +16,28 @@ function readInputButton(valueInput) {
         fullExpression += valueInput;
     multiplyNumberAfterParenthesis();
     updateHtml();
-    console.log("inserted Expre: " + fullExpression);
 }
 function readOperationButton(operationInput) {
-    console.log("pressed: " + operationInput);
-    if (!isNumeric(fullExpression[fullExpression.length - 1]))
+    console.log("Pressed: " + operationInput);
+    if (!isNumeric(fullExpression[fullExpression.length - 1]) && fullExpression[fullExpression.length - 1] != '(' && fullExpression[fullExpression.length - 1] != ')')
         return;
     fullExpression += operationInput;
     updateHtml();
-    console.log("inserted Expre: " + fullExpression);
 }
 function calculateResult() {
+    console.log("Input: " + fullExpression);
     removeUselessOperations();
     while (howManyParenthesisOpen() > 0)
         fullExpression += ')';
     fullExpression = evaluateExpression(fullExpression);
-    console.log("final Expre: " + fullExpression);
+    console.log("Result: " + fullExpression);
     updateHtml();
 }
 function evaluateExpression(expression) {
-    console.log("expression to calc: " + expression);
-    if (!expression.includes('+') && !expression.includes('-') && !expression.includes('*') && !expression.includes('/') && !expression.includes('(') && !expression.includes(')'))
+    if (!expression.includes('+') && !expression.includes('*') && !expression.includes('/') && !expression.includes('(') && !expression.includes(')') && howManyNumbersInExpression(expression) == 1)
         return expression;
     while (expression.includes('(') && expression.includes(')')) {
         var startIndex = 0, endIndex = 0;
-        console.log("expression to calc: " + expression);
         for (var index = 0; index < expression.length; index++) {
             if (expression[index] == '(')
                 startIndex = index;
@@ -49,6 +46,7 @@ function evaluateExpression(expression) {
             if (endIndex != 0 && endIndex > startIndex)
                 break;
         }
+        console.log("Evaluating sub-expression...");
         var subExpressionResult = evaluateExpression(expression.slice(startIndex + 1, endIndex));
         expression = expression.slice(0, startIndex) + subExpressionResult + expression.slice(endIndex + 1, expression.length);
     }
@@ -64,10 +62,12 @@ function evaluateExpression(expression) {
                 firstIndexTwo = char + 1;
                 for (var forwardChar = char + 1; forwardChar < expression.length; forwardChar++) {
                     if (!isNumeric(expression[forwardChar]) || forwardChar == expression.length - 1) {
-                        finalIndexTwo = forwardChar;
+                        finalIndexTwo = (forwardChar == expression.length - 1) ? forwardChar + 1 : forwardChar;
                         secondNumber = expression.slice(firstIndexTwo, finalIndexTwo);
+                        if (secondNumber == '.')
+                            secondNumber = '0';
                         var result = Number(firstNumber) * Number(secondNumber);
-                        expression = expression.slice(0, firstIndexOne) + result.toString() + expression.slice(finalIndexTwo + 1, expression.length);
+                        expression = expression.slice(0, firstIndexOne) + result.toString() + expression.slice(finalIndexTwo, expression.length);
                         break;
                     }
                 }
@@ -79,12 +79,12 @@ function evaluateExpression(expression) {
                 firstIndexTwo = char + 1;
                 for (var forwardChar = char + 1; forwardChar < expression.length; forwardChar++) {
                     if (!isNumeric(expression[forwardChar]) || forwardChar == expression.length - 1) {
-                        finalIndexTwo = forwardChar;
+                        finalIndexTwo = (forwardChar == expression.length - 1) ? forwardChar + 1 : forwardChar;
                         secondNumber = expression.slice(firstIndexTwo, finalIndexTwo);
-                        if (Number(secondNumber) == 0)
+                        if (secondNumber == '.' || Number(secondNumber) == 0)
                             return "Error";
                         var result = Number(firstNumber) / Number(secondNumber);
-                        expression = expression.slice(0, firstIndexOne) + result.toString() + expression.slice(finalIndexTwo + 1, expression.length);
+                        expression = expression.slice(0, firstIndexOne) + result.toString() + expression.slice(finalIndexTwo, expression.length);
                         break;
                     }
                 }
@@ -92,10 +92,12 @@ function evaluateExpression(expression) {
             }
         }
     }
-    while (expression.includes('+') || expression.includes('-')) {
+    while (howManyNumbersInExpression(expression) > 1) {
         var firstNumber = "", secondNumber = "";
         for (var char = 0; char < expression.length; char++) {
-            if (expression[char] == '+') {
+            if (expression[char] == '+' || (expression[char] == '-' && howManyNumbersInExpression(expression) > 1) && char != 0) {
+                if (expression[char] == '-' && howManyNumbersInExpression(expression) > 1)
+                    secondNumber += expression[char];
                 for (var forwardChar = char + 1; forwardChar < expression.length; forwardChar++) {
                     if (isNumeric(expression[forwardChar]))
                         secondNumber += expression[forwardChar];
@@ -107,33 +109,23 @@ function evaluateExpression(expression) {
                 }
                 break;
             }
-            else if (expression[char] == '-') {
-                for (var forwardChar = char + 1; forwardChar < expression.length; forwardChar++) {
-                    if (isNumeric(expression[forwardChar]))
-                        secondNumber += expression[forwardChar];
-                    if (!isNumeric(expression[forwardChar]) || forwardChar == expression.length - 1) {
-                        var result = Number(firstNumber) + (Number(secondNumber) * -1);
-                        expression = (forwardChar != expression.length - 1) ? result.toString() + expression.slice(forwardChar, expression.length) : result.toString();
-                        break;
-                    }
-                }
-                break;
-            }
             firstNumber += expression[char];
         }
     }
-    console.log("result " + expression);
     return expression;
 }
-function removeUselessOperations() {
-    for (var char = 0; char < fullExpression.length; char++)
-        if (!isNumeric(fullExpression[char]) && (fullExpression[char] != '(' && fullExpression[char] != ')') && (!isNumeric(fullExpression[char + 1]) && (fullExpression[char + 1] != '(' && fullExpression[char + 1] != ')')))
-            fullExpression = fullExpression.slice(0, char) + fullExpression.slice(char + 1, fullExpression.length);
-}
-function multiplyNumberAfterParenthesis() {
-    for (var char = 0; char < fullExpression.length; char++)
-        if (fullExpression[char] == ')' && isNumeric(fullExpression[char + 1]))
-            fullExpression = fullExpression.slice(0, char + 1) + '*' + fullExpression.slice(char + 1, fullExpression.length);
+function howManyNumbersInExpression(expression) {
+    var numbers = 0;
+    var countedOne = false;
+    for (var char = 0; char < expression.length; char++) {
+        if (!isNumeric(expression[char]) && countedOne)
+            countedOne = false;
+        if ((isNumeric(expression[char]) || expression[char] == '-') && !countedOne) {
+            countedOne = true;
+            numbers++;
+        }
+    }
+    return numbers;
 }
 function howManyParenthesisOpen() {
     if (!fullExpression.includes('('))
@@ -148,7 +140,19 @@ function howManyParenthesisOpen() {
     return openParenthesis;
 }
 function isNumeric(char) {
+    if (char == '.')
+        return true;
     return !isNaN(Number(char));
+}
+function removeUselessOperations() {
+    for (var char = 0; char < fullExpression.length; char++)
+        if (!isNumeric(fullExpression[char]) && (fullExpression[char] != '(' && fullExpression[char] != ')') && (!isNumeric(fullExpression[char + 1]) && (fullExpression[char + 1] != '(' && fullExpression[char + 1] != ')')))
+            fullExpression = fullExpression.slice(0, char) + fullExpression.slice(char + 1, fullExpression.length);
+}
+function multiplyNumberAfterParenthesis() {
+    for (var char = 0; char < fullExpression.length; char++)
+        if (fullExpression[char] == ')' && isNumeric(fullExpression[char + 1]))
+            fullExpression = fullExpression.slice(0, char + 1) + '*' + fullExpression.slice(char + 1, fullExpression.length);
 }
 function updateHtml() {
     resultHtml.textContent = fullExpression;
