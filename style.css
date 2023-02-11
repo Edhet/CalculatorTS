@@ -20,6 +20,10 @@
 
 @media screen and (max-width:400px){
 
+    .my-content-fit {
+        width: 18.3rem !important;
+    }
+
     .buttonCalc {
         min-width: 3.2rem;
     }
