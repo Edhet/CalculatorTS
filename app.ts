@@ -85,8 +85,8 @@ function evaluateExpression(expression: string): string {
                     if (!isNumeric(expression[forwardChar]) || forwardChar == expression.length - 1) {
                         finalIndexTwo = (forwardChar == expression.length - 1) ? forwardChar + 1 : forwardChar;
                         secondNumber = expression.slice(firstIndexTwo, finalIndexTwo);
-                        if (secondNumber == '.')
-                            secondNumber = '0';
+                        firstNumber = (firstNumber == '.') ? '0' : firstNumber;
+                        secondNumber = (secondNumber == '.') ? '0' : secondNumber;
                         let result: number = Number(firstNumber) * Number(secondNumber);
                         expression = expression.slice(0, firstIndexOne) + result.toString() + expression.slice(finalIndexTwo, expression.length);
                         break;
@@ -102,7 +102,9 @@ function evaluateExpression(expression: string): string {
                     if (!isNumeric(expression[forwardChar]) || forwardChar == expression.length - 1) {
                         finalIndexTwo = (forwardChar == expression.length - 1) ? forwardChar + 1 : forwardChar;
                         secondNumber = expression.slice(firstIndexTwo, finalIndexTwo);
-                        if (secondNumber == '.' || Number(secondNumber) == 0)
+                        firstNumber = (firstNumber == '.') ? '0' : firstNumber;
+                        secondNumber = (secondNumber == '.') ? '0' : secondNumber;
+                        if (Number(secondNumber) == 0)
                             return "Error";
                         let result: number = Number(firstNumber) / Number(secondNumber);
                         expression = expression.slice(0, firstIndexOne) + result.toString() + expression.slice(finalIndexTwo, expression.length);
@@ -126,6 +128,8 @@ function evaluateExpression(expression: string): string {
                         secondNumber += expression[forwardChar];
 
                     if (!isNumeric(expression[forwardChar]) || forwardChar == expression.length - 1) {
+                        firstNumber = (firstNumber == '.') ? '0' : firstNumber;
+                        secondNumber = (secondNumber == '.') ? '0' : secondNumber;
                         let result: number = Number(firstNumber) + Number(secondNumber);
                         expression = (forwardChar == expression.length - 1) ? result.toString() : result.toString() + expression.slice(forwardChar, expression.length);
                         break;
